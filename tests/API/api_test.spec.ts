@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { defaultData } from "../../data/default";
+import { StatusCodes } from "http-status-codes";
 
 const { email, password } = defaultData.userCredentials[0];
 
@@ -15,10 +16,10 @@ test.describe("API Tests - Login Verification", () => {
         password,
       },
     });
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(StatusCodes.OK);
     const responseBody = await response.json();
     expect(responseBody).toHaveProperty("responseCode");
-    expect(responseBody.responseCode).toBe(200);
+    expect(responseBody.responseCode).toBe(StatusCodes.OK);
     expect(responseBody).toHaveProperty("message");
     expect(responseBody.message).toBe("User exists!");
 

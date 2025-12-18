@@ -19,7 +19,7 @@ export default defineConfig({
   use: {
     screenshot: "on",
     trace: "on-first-retry",
-    // Add storage state to use saved authentication
+    headless: !!process.env.CI,
     storageState: "auth/storageState.json",
   },
   projects: [
