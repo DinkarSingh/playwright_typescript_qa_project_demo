@@ -3,7 +3,7 @@ import { defaultData } from "../../data/default";
 
 test.describe("Login Page Tests", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/login");
     await page.getByRole("button", { name: "Consent" }).click();
   });
 

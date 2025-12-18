@@ -1,6 +1,6 @@
-import { test as base, request } from '@playwright/test';
-import { defaultData } from '../data/default';
-import fs from 'fs';
+import { test as base, request } from "@playwright/test";
+import { defaultData } from "../data/default";
+import fs from "fs";
 
 export const test = base.extend<{ user: { login: () => Promise<void> } }>({
   user: async ({}, use) => {
@@ -15,9 +15,11 @@ export const test = base.extend<{ user: { login: () => Promise<void> } }>({
         if (!getResponse.ok()) {
           throw new Error(`Failed to load login page: ${getResponse.status()}`);
         }
-        
+
         const html = await getResponse.text();
-        const csrfMatch = html.match(/name=['"]csrfmiddlewaretoken['"] value=['"]([^'"]+)['"]/);
+        const csrfMatch = html.match(
+          /name=['"]csrfmiddlewaretoken['"] value=['"]([^'"]+)['"]/,
+        );
         if (!csrfMatch) {
           throw new Error("CSRF token not found in login page");
         }
@@ -31,20 +33,21 @@ export const test = base.extend<{ user: { login: () => Promise<void> } }>({
             password: defaultData.userCredentials[0].password,
           },
           headers: {
-            'Referer': loginPageUrl,
-            'Origin': baseURL,
-          }
+            Referer: loginPageUrl,
+            Origin: baseURL,
+          },
         });
 
         if (!response.ok()) {
           const errorText = await response.text();
-          throw new Error(`Login request failed: ${response.status()} ${errorText}`);
+          throw new Error(
+            `Login request failed: ${response.status()} ${errorText}`,
+          );
         }
 
         // Step 3: Save session state
         await apiRequest.storageState({ path: "auth/storageState.json" });
         console.log("Login successful, storage state saved");
-        
       } catch (error) {
         console.error("Login failed:", error);
         throw error;
@@ -57,4 +60,4 @@ export const test = base.extend<{ user: { login: () => Promise<void> } }>({
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";
