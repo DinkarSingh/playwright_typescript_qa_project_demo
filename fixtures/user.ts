@@ -3,7 +3,7 @@ import { defaultData } from "../data/default";
 import fs from "fs";
 
 export const test = base.extend<{ user: { login: () => Promise<void> } }>({
-  user: async ({}, use) => {
+  user: async ({ context }, use) => {
     const login = async () => {
       const apiRequest = await request.newContext();
       const baseURL = defaultData.uibaseURL[0].baseURL;
@@ -47,7 +47,12 @@ export const test = base.extend<{ user: { login: () => Promise<void> } }>({
 
         // Step 3: Save session state
         await apiRequest.storageState({ path: "auth/storageState.json" });
-        console.log("Login successful, storage state saved");
+
+        // Step 4: Apply the saved auth state to current browser context
+        const storageState = JSON.parse(
+          fs.readFileSync("auth/storageState.json", "utf-8"),
+        );
+        await context.addCookies(storageState.cookies);
       } catch (error) {
         console.error("Login failed:", error);
         throw error;

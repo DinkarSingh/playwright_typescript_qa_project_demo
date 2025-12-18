@@ -31,6 +31,16 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm ci
+      - name: Check for .only in tests
+        run: |
+          echo "🔍 Checking for .only in test files..."
+          if grep -r "\.only(" tests/ --include="*.ts" --include="*.js"; then
+            echo "❌ Error: .only found in test files!"
+            echo "   Remove .only before committing"
+            exit 1
+          else
+            echo "✅ No .only found in test files"
+          fi
       - name: Run Lint
         run: npm run lint
       - name: Run Format Check

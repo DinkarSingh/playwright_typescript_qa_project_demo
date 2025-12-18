@@ -20,7 +20,6 @@ export default defineConfig({
     screenshot: "on",
     trace: "on-first-retry",
     headless: !!process.env.CI,
-    storageState: "auth/storageState.json",
   },
   projects: [
     {
@@ -29,8 +28,6 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         baseURL: defaultData.uibaseURL[0].baseURL,
-        // Add storage state to use saved authentication
-        storageState: "auth/storageState.json",
       },
     },
     {
