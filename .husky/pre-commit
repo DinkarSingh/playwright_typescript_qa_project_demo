@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check for .only in test files
+echo "🔍 Checking for .only in test files..."
+if grep -r "\.only(" tests/ --include="*.ts" --include="*.js"; then
+  echo "❌ Error: .only found in test files!"
+  echo "   Remove .only before committing"
+  exit 1
+fi
+
+# Check for .skip that might be accidentally committed
+if grep -r "\.skip(" tests/ --include="*.ts" --include="*.js"; then
+  echo "⚠️  Warning: .skip found in test files (allowed but check if intentional)"
+fi
+
+# Run lint-staged for formatting and linting
+npm run pre-commit

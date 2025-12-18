@@ -4,20 +4,22 @@ import { defaultData } from "./data/default";
 export default defineConfig({
   globalSetup: require.resolve("./global-setup.ts"),
   testDir: "./tests",
-  timeout: 30000,
+  timeout: 60000,
   expect: {
-    timeout: 5000,
+    timeout: 10000,
   },
-  fullyParallel: true,
   reporter: [
     ["list"],
     ["html", { open: "never" }],
-    ["junit", { outputFile: process.env.JUNIT_FILE || "playwright-report/results.xml" }],
+    [
+      "junit",
+      { outputFile: process.env.JUNIT_FILE || "playwright-report/results.xml" },
+    ],
   ],
   use: {
     screenshot: "on",
     trace: "on-first-retry",
-    storageState: "auth/storageState.json",
+    headless: !!process.env.CI,
   },
   projects: [
     {

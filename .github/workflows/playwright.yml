@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   install:
@@ -31,6 +31,16 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm ci
+      - name: Check for .only in tests
+        run: |
+          echo "🔍 Checking for .only in test files..."
+          if grep -r "\.only(" tests/ --include="*.ts" --include="*.js"; then
+            echo "❌ Error: .only found in test files!"
+            echo "   Remove .only before committing"
+            exit 1
+          else
+            echo "✅ No .only found in test files"
+          fi
       - name: Run Lint
         run: npm run lint
       - name: Run Format Check
@@ -84,7 +94,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install
       - name: Run UI Tests
-        run: npx playwright test --project=default --workers=1 --headed
+        run: npx playwright test --project=default --workers=1
       - name: Upload Playwright UI JUnit Report
         uses: actions/upload-artifact@v4
         with:
