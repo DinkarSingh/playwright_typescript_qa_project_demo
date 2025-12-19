@@ -12,7 +12,7 @@ This repository demonstrates setting up Playwright with TypeScript for end-to-en
 1. Clone the repository:
 
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/DinkarSingh/playwright_typescript_qa_project_demo.git
    cd playwright-project
    ```
 
