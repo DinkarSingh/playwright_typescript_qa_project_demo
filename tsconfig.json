@@ -7,7 +7,11 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "@support/*": ["./support/*"],
+      "@services/*": ["./services/*"]
+    }
   },
   "include": ["tests/**/*.ts", "data/**/*.ts"],
   "exclude": ["node_modules"]

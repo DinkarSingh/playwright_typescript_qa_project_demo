@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { defaultData } from "../../data/default";
-import { signup } from "../../services/signup";
+import { signup } from "../../services/login";
 import { faker } from "@faker-js/faker";
 
 const userName = faker.person.firstName();

@@ -1,68 +1,45 @@
 import { test as base, request } from "@playwright/test";
 import { defaultData } from "../data/default";
-import fs from "fs";
+import { signup } from "../services/login";
 
-export const test = base.extend<{ user: { login: () => Promise<void> } }>({
-  user: async ({ context }, use) => {
-    const login = async () => {
-      const apiRequest = await request.newContext();
+export const test = base.extend<{ user: { login: () => Promise<string> } }>({
+  user: async ({ page }, use) => {
+    const login = async (): Promise<string> => {
       const baseURL = defaultData.uibaseURL[0].baseURL;
-      const loginPageUrl = `${baseURL}/login`;
+      const loginPageUrl = `${baseURL}/#/login`;
 
       try {
-        // Step 1: Get CSRF token from login page
-        const getResponse = await apiRequest.get(loginPageUrl);
-        if (!getResponse.ok()) {
-          throw new Error(`Failed to load login page: ${getResponse.status()}`);
-        }
-
-        const html = await getResponse.text();
-        const csrfMatch = html.match(
-          /name=['"]csrfmiddlewaretoken['"] value=['"]([^'"]+)['"]/,
+        await page.goto(loginPageUrl);
+        await signup(
+          defaultData.userCredentials[0].email,
+          defaultData.userCredentials[0].password,
+          "TestUser",
         );
-        if (!csrfMatch) {
-          throw new Error("CSRF token not found in login page");
-        }
-        const csrfToken = csrfMatch[1];
 
-        // Step 2: Login with proper headers and CSRF token
-        const response = await apiRequest.post(loginPageUrl, {
-          form: {
-            csrfmiddlewaretoken: csrfToken,
-            email: defaultData.userCredentials[0].email,
-            password: defaultData.userCredentials[0].password,
-          },
-          headers: {
-            Referer: loginPageUrl,
-            Origin: baseURL,
-          },
-        });
+        await page.getByRole("link", { name: "Sign in" }).click();
+        await page
+          .getByRole("textbox", { name: "Email" })
+          .fill(defaultData.userCredentials[0].email);
+        await page
+          .getByRole("textbox", { name: "Password" })
+          .fill(defaultData.userCredentials[0].password);
 
-        if (!response.ok()) {
-          const errorText = await response.text();
-          throw new Error(
-            `Login request failed: ${response.status()} ${errorText}`,
-          );
-        }
+        const [response] = await Promise.all([
+          page.waitForResponse(`**/users/login`),
+          page.getByRole("button", { name: "Sign in" }).click(),
+        ]);
 
-        // Step 3: Save session state
-        await apiRequest.storageState({ path: "auth/storageState.json" });
+        const responseData = await response.json();
+        const token = responseData.user.token;
 
-        // Step 4: Apply the saved auth state to current browser context
-        const storageState = JSON.parse(
-          fs.readFileSync("auth/storageState.json", "utf-8"),
-        );
-        await context.addCookies(storageState.cookies);
+        console.log("Token retrieved:", token);
+        return token;
       } catch (error) {
-        console.error("Login failed:", error);
+        console.error("Login process failed:", error);
         throw error;
-      } finally {
-        await apiRequest.dispose();
       }
     };
 
     await use({ login });
   },
 });
-
-export { expect } from "@playwright/test";

@@ -2,12 +2,19 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { StatusCodes } from "http-status-codes";
 import { defaultData } from "../data/default";
 
-function getHttpInstance(): AxiosInstance {
+function getHttpInstance(token?: string): AxiosInstance {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // Add Authorization header if token is provided
+  if (token) {
+    headers.Authorization = `Token ${token}`;
+  }
+
   const instance = axios.create({
     baseURL: defaultData.publicAPIbaseURL[0].baseURL,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
   });
   return instance;
 }
@@ -17,6 +24,7 @@ export async function httpRequest<T>({
   resource,
   data,
   auth,
+  token,
   validateStatus = (status) =>
     status >= StatusCodes.OK && status < StatusCodes.MULTIPLE_CHOICES,
 }: {
@@ -24,9 +32,10 @@ export async function httpRequest<T>({
   resource: string;
   data?: any;
   auth?: { email: string; password: string };
+  token?: string;
   validateStatus?: (status: number) => boolean;
 }): Promise<AxiosResponse<T, unknown>> {
-  const response = await getHttpInstance().request<T>({
+  const response = await getHttpInstance(token).request<T>({
     method,
     url: resource,
     data,
